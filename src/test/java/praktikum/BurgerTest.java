@@ -13,7 +13,7 @@ import org.assertj.core.api.SoftAssertions;
 @RunWith(Parameterized.class)
 public class BurgerTest extends BaseTest {
 
-    @Parameters
+    @Parameters(name = "Тестовые данные: ingredientCount={0}, expectedPrice={1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 {0, 200f}, // Только булка
