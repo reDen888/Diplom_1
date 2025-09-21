@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.*;
 
@@ -27,23 +28,18 @@ public class BurgerNonParameterizedTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
         // Настраиваем моки
         when(bun.getName()).thenReturn("Чёрная булка");
         when(bun.getPrice()).thenReturn(100f);
-
         when(cutlet.getName()).thenReturn("Котлета");
         when(cutlet.getType()).thenReturn(IngredientType.FILLING);
         when(cutlet.getPrice()).thenReturn(50f);
-
         when(cheese.getName()).thenReturn("Сыр");
         when(cheese.getType()).thenReturn(IngredientType.FILLING);
         when(cheese.getPrice()).thenReturn(50f);
-
         when(mayonnaise.getName()).thenReturn("Майонез");
         when(mayonnaise.getType()).thenReturn(IngredientType.SAUCE);
         when(mayonnaise.getPrice()).thenReturn(50f);
-
         burger = new Burger();
     }
 
@@ -53,9 +49,7 @@ public class BurgerNonParameterizedTest {
     public void testReceiptContainsBunName() {
         burger.setBuns(bun);
         burger.addIngredient(cutlet);
-
         String receipt = burger.getReceipt();
-
         assertTrue("Чек должен содержать название булки", receipt.contains("Чёрная булка"));
     }
 
@@ -63,9 +57,7 @@ public class BurgerNonParameterizedTest {
     public void testReceiptContainsIngredientName() {
         burger.setBuns(bun);
         burger.addIngredient(cutlet);
-
         String receipt = burger.getReceipt();
-
         assertTrue("Чек должен содержать ингредиент", receipt.contains("Котлета"));
     }
 
@@ -73,9 +65,7 @@ public class BurgerNonParameterizedTest {
     public void testReceiptContainsPriceLabel() {
         burger.setBuns(bun);
         burger.addIngredient(cutlet);
-
         String receipt = burger.getReceipt();
-
         assertTrue("Чек должен содержать метку цены", receipt.contains("Price:"));
     }
 
@@ -83,49 +73,38 @@ public class BurgerNonParameterizedTest {
     public void testReceiptContainsCorrectPriceValueForOneIngredient() {
         burger.setBuns(bun);
         burger.addIngredient(cutlet);
-
         String receipt = burger.getReceipt();
-
         // Проверяем, что цена 250 присутствует в чеке
         assertTrue("Чек должен содержать цену 250", receipt.contains("250"));
     }
 
-    // Разделение теста структуры чека на отдельные тесты
+    // Проверка рецепта
     @Test
-    public void testReceiptStartsWithTopBun() {
+    public void testReceiptStructure() {
         burger.setBuns(bun);
         burger.addIngredient(cutlet);
-
         String receipt = burger.getReceipt();
         String lineSep = System.lineSeparator();
 
-        assertTrue("Чек должен начинаться с верхней булки", receipt.startsWith("(==== Чёрная булка ====)" + lineSep));
+        // Формируем ожидаемые части чека
+        String expectedTopBun = "(==== Чёрная булка ====)" + lineSep;
+        String expectedIngredient = "= filling Котлета =" + lineSep;
+        String expectedBottomBun = "(==== Чёрная булка ====)" + lineSep;
+        String expectedSpacing = lineSep; // Пустая строка перед ценой
+        String expectedPriceEndDot = "Price: 250.000000" + lineSep;
+        String expectedPriceEndComma = "Price: 250,000000" + lineSep;
+
+        // Собираем ожидаемый чек для обеих локалей
+        String expectedReceiptWithDot = expectedTopBun + expectedIngredient + expectedBottomBun + expectedSpacing + expectedPriceEndDot;
+        String expectedReceiptWithComma = expectedTopBun + expectedIngredient + expectedBottomBun + expectedSpacing + expectedPriceEndComma;
+
+        // Проверяем, совпадает ли полученный чек с одним из ожидаемых
+        boolean matchesDotLocale = receipt.equals(expectedReceiptWithDot);
+        boolean matchesCommaLocale = receipt.equals(expectedReceiptWithComma);
+
+        assertTrue("Структура чека должна соответствовать ожидаемой (с точкой или запятой как разделителем)",
+                matchesDotLocale || matchesCommaLocale);
     }
-
-    @Test
-    public void testReceiptContainsIngredientLine() {
-        burger.setBuns(bun);
-        burger.addIngredient(cutlet);
-
-        String receipt = burger.getReceipt();
-        String lineSep = System.lineSeparator();
-
-        assertTrue("Чек должен содержать строку ингредиента", receipt.contains("= filling Котлета =" + lineSep));
-    }
-
-    @Test
-    public void testReceiptContainsBottomBunWithSpacing() {
-        burger.setBuns(bun);
-        burger.addIngredient(cutlet);
-
-        String receipt = burger.getReceipt();
-        String lineSep = System.lineSeparator();
-
-        String expectedPattern = lineSep + "(==== Чёрная булка ====)" + lineSep;
-        assertTrue("Чек должен содержать нижнюю булку с предшествующими пустыми строками",
-                receipt.contains(expectedPattern));
-    }
-
 
     @Test
     public void testSetBuns() {
@@ -151,9 +130,7 @@ public class BurgerNonParameterizedTest {
         burger.addIngredient(cutlet);
         burger.addIngredient(cheese);
         burger.addIngredient(mayonnaise);
-
         burger.moveIngredient(0, 1);
-
         assertEquals("Ингредиент cutlet должен быть перемещен на позицию 1", cutlet, burger.ingredients.get(1));
     }
 
@@ -162,9 +139,7 @@ public class BurgerNonParameterizedTest {
         burger.addIngredient(cutlet);
         burger.addIngredient(cheese);
         burger.addIngredient(mayonnaise);
-
         burger.moveIngredient(0, 1);
-
         assertEquals("Ингредиент cheese должен переместиться на позицию 0", cheese, burger.ingredients.get(0));
     }
 
@@ -173,9 +148,7 @@ public class BurgerNonParameterizedTest {
         burger.addIngredient(cutlet);
         burger.addIngredient(cheese);
         burger.addIngredient(mayonnaise);
-
         burger.moveIngredient(0, 1);
-
         assertEquals("Ингредиент mayonnaise должен остаться на позиции 2", mayonnaise, burger.ingredients.get(2));
     }
 
@@ -199,7 +172,6 @@ public class BurgerNonParameterizedTest {
     public void testEmptyBurgerReceiptContainsBunName() {
         burger.setBuns(bun);
         String receipt = burger.getReceipt();
-
         assertTrue("Чек должен содержать название булки", receipt.contains("Чёрная булка"));
     }
 
@@ -207,7 +179,6 @@ public class BurgerNonParameterizedTest {
     public void testEmptyBurgerReceiptContainsPriceLabel() {
         burger.setBuns(bun);
         String receipt = burger.getReceipt();
-
         assertTrue("Чек должен содержать цену", receipt.contains("Price:"));
     }
 
@@ -215,19 +186,7 @@ public class BurgerNonParameterizedTest {
     public void testEmptyBurgerReceiptContainsCorrectPriceValue() {
         burger.setBuns(bun);
         String receipt = burger.getReceipt();
-
         // Проверяем, что цена 200 присутствует в чеке
         assertTrue("Чек должен содержать цену 200", receipt.contains("200"));
-    }
-
-    @Test
-    public void testReceiptContainsCorrectPriceValueGeneral() {
-        burger.setBuns(bun);
-        burger.addIngredient(cutlet);
-
-        String receipt = burger.getReceipt();
-
-        // Проверяем, что цена 250 присутствует в чеке
-        assertTrue("Чек должен содержать цену 250", receipt.contains("250"));
     }
 }
